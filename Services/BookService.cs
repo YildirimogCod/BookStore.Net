@@ -1,4 +1,5 @@
 ﻿using Models;
+using NLog;
 using Repository.Contracts;
 using Services.Contracts;
 
@@ -7,9 +8,11 @@ namespace Services
     public class BookService:IBookService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public BookService(IUnitOfWork unitOfWork)
+        private readonly ILoggingService _logger;
+        public BookService(IUnitOfWork unitOfWork,ILoggingService logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
         public IEnumerable<Book> GetAllBooks()
         {
@@ -41,6 +44,7 @@ namespace Services
             }
             else
             {
+               _logger.Error($"Book with id {id} not found for update");
                 throw new Exception("Book not found");
             }
 
@@ -56,8 +60,10 @@ namespace Services
             }
             else
             {
+                _logger.Error($"Book with id {id} not found for deletion");
                 throw new Exception("Book not found");
             }
         }
     }
 }
+

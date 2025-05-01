@@ -22,5 +22,9 @@ namespace App.API.Extensions
         {
             services.AddScoped<IServiceManager, ServiceManager>();
         }
+        public static void ConfigureLoggingService(this IServiceCollection services)
+        {
+            services.AddScoped<ILoggingService, LoggingService>();
+        }
     }
 }
