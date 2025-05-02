@@ -1,4 +1,7 @@
-﻿using Models;
+﻿using AutoMapper;
+using Models;
+using Models.Dtos;
+using Models.Exceptions;
 using NLog;
 using Repository.Contracts;
 using Services.Contracts;
@@ -9,10 +12,12 @@ namespace Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILoggingService _logger;
-        public BookService(IUnitOfWork unitOfWork,ILoggingService logger)
+        private readonly IMapper _mapper;
+        public BookService(IUnitOfWork unitOfWork,ILoggingService logger,IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _mapper = mapper;
         }
         public IEnumerable<Book> GetAllBooks()
         {
@@ -32,22 +37,15 @@ namespace Services
             return book;
         }
 
-        public void UpdateBook(int id,Book book)
+        public void UpdateBook(int id,UpdateBookRequest updateBook)
         {
             var entity = _unitOfWork.BookRepository.GetOneBook(id);
-            if (entity != null)
-            {
-                entity.Title = book.Title;
-                entity.Price = book.Price;
-                _unitOfWork.BookRepository.Update(entity);
+            if (entity == null)
+                throw new BookNotFoundException(id);
+            _mapper.Map<Book>(entity);
+            _unitOfWork.BookRepository.Update(entity);
                 _unitOfWork.Save();
-            }
-            else
-            {
-               _logger.Error($"Book with id {id} not found for update");
-                throw new Exception("Book not found");
-            }
-
+               
         }
 
         public void DeleteBook(int id)

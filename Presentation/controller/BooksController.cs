@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.Dtos;
+using Models.Exceptions;
 using Services.Contracts;
 
 namespace Presentation.controller
@@ -24,9 +26,9 @@ namespace Presentation.controller
         public IActionResult GetBook(int id)
         {
             var book = _serviceManager.BookService.GetBookById(id);
-            if (book == null)
+            if (book is null)
             {
-                return NotFound();
+                throw new BookNotFoundException(id);
             }
             return Ok(book);
         }
@@ -42,13 +44,13 @@ namespace Presentation.controller
             return StatusCode(201, book);
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateBook(int id, [FromBody] Book book)
+        public IActionResult UpdateBook(int id, [FromBody] UpdateBookRequest updateBook)
         {
-            if (book is null)
+            if (updateBook is null)
             {
                 return BadRequest();
             }
-            _serviceManager.BookService.UpdateBook(id, book);
+            _serviceManager.BookService.UpdateBook(id, updateBook);
 
             return NoContent();
         }
